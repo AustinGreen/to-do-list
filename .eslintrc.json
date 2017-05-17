@@ -8,5 +8,8 @@
     "env": {
         "browser": true,
         "jasmine": true
+    },
+    "rules": {
+        "max-len": [1, 120, 4]
     }
 }

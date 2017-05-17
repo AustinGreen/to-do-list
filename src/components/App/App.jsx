@@ -1,6 +1,55 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+const AddToDoForm = ({ onSubmit, onToDoChange, isError }) => (
+  <form onSubmit={onSubmit} className="field has-addons has-addons-centered">
+    <p className="control">
+      <input
+        onChange={onToDoChange}
+        className={isError ? 'input is-danger' : 'input'}
+        type="text"
+        placeholder="Add a to-do"
+      />
+    </p>
+    <p className="control">
+      <button type="submit" className="button is-primary">+</button>
+    </p>
+  </form>
+);
+
+AddToDoForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onToDoChange: PropTypes.func.isRequired,
+  isError: PropTypes.bool,
+};
+
+AddToDoForm.defaultProps = {
+  isError: false,
+};
+
+const ToDoList = ({ toDos, onDismiss }) => (
+  <ul>
+    {toDos.map(todo => (
+      <li key={todo.key}>
+        <span className="tag" style={{ fontSize: '1.05rem' }}>
+          {todo.toDoName}
+          <button className="delete is-small" onClick={() => onDismiss(todo.key)} />
+        </span>
+      </li>
+    ))}
+  </ul>
+);
+
+ToDoList.propTypes = {
+  toDos: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.number,
+      toDoName: PropTypes.string,
+    }),
+  ).isRequired,
+  onDismiss: PropTypes.func.isRequired,
+};
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -40,10 +89,7 @@ class App extends Component {
       }));
     } else {
       this.setState(prevState => ({
-        toDos: [
-          ...prevState.toDos,
-          { key: prevState.toDos[prevState.toDos.length - 1].key + 1, toDoName },
-        ],
+        toDos: [...prevState.toDos, { key: prevState.toDos[prevState.toDos.length - 1].key + 1, toDoName }],
         toDoName: '',
       }));
     }
@@ -52,32 +98,11 @@ class App extends Component {
   }
 
   render() {
-    const { toDos } = this.state;
+    const { toDos, isError } = this.state;
     return (
-      <section className="section column is-half is-offset-one-quarter has-text-centered">
-        <form onSubmit={this.onToDoSubmit} className="field has-addons has-addons-centered">
-          <p className="control">
-            <input
-              onChange={this.onToDoChange}
-              className={this.state.isError ? 'input is-danger' : 'input'}
-              type="text"
-              placeholder="Add a to-do"
-            />
-          </p>
-          <p className="control">
-            <button type="submit" className="button is-primary">+</button>
-          </p>
-        </form>
-        <ul>
-          {toDos.map(todo => (
-            <li key={todo.key}>
-              <span className="tag">
-                {todo.toDoName}
-                <button className="delete is-small" onClick={() => this.onDismiss(todo.key)} />
-              </span>
-            </li>
-          ))}
-        </ul>
+      <section className="section column is-half is-offset-one-quarter">
+        <AddToDoForm onSubmit={this.onToDoSubmit} onToDoChange={this.onToDoChange} isError={isError} />
+        <ToDoList toDos={toDos} onDismiss={this.onDismiss} />
       </section>
     );
   }
