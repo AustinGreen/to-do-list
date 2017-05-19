@@ -1,16 +1,34 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+
+const AppContainer = styled.section`
+  max-width: 1080px;
+  margin: 0 auto;
+`;
+
+const FullWidthContainer = styled.p`
+  width: 100%;
+`;
+
+const ListItem = styled.span`
+  font-size: 1.05rem;
+  width: 100%;
+  margin: 5px 0;
+  border: 1px solid darkgray;
+  justify-content: space-between;
+`;
 
 const AddToDoForm = ({ onSubmit, onToDoChange, isError }) => (
-  <form onSubmit={onSubmit} className="field has-addons has-addons-centered">
-    <p className="control">
+  <form onSubmit={onSubmit} className="field has-addons">
+    <FullWidthContainer className="control">
       <input
         onChange={onToDoChange}
         className={isError ? 'input is-danger' : 'input'}
         type="text"
         placeholder="Add a to-do"
       />
-    </p>
+    </FullWidthContainer>
     <p className="control">
       <button type="submit" className="button is-primary">+</button>
     </p>
@@ -27,14 +45,14 @@ AddToDoForm.defaultProps = {
   isError: false,
 };
 
-const ToDoList = ({ toDos, onDismiss }) => (
+const ToDoList = ({ toDos, onDismiss, toggleEditing, isEditing }) => (
   <ul>
     {toDos.map(todo => (
-      <li key={todo.key}>
-        <span className="tag" style={{ fontSize: '1.05rem' }}>
+      <li onClick={toggleEditing(todo.key)} key={todo.key}>
+        <ListItem className="tag">
           {todo.toDoName}
           <button className="delete is-small" onClick={() => onDismiss(todo.key)} />
-        </span>
+        </ListItem>
       </li>
     ))}
   </ul>
@@ -57,11 +75,13 @@ class App extends Component {
       toDoName: '',
       toDos: [],
       isError: false,
+      isEditing: false,
     };
 
     this.onToDoSubmit = this.onToDoSubmit.bind(this);
     this.onToDoChange = this.onToDoChange.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+    this.toggleEditing = this.toggleEditing.bind(this);
   }
   onDismiss(key) {
     const isNotId = item => item.key !== key;
@@ -97,13 +117,25 @@ class App extends Component {
     e.target.reset();
   }
 
+  toggleEditing(key) {
+    // this.setState({ isEditing: !this.state.isEditing });
+    console.log(key);
+  }
+
   render() {
-    const { toDos, isError } = this.state;
+    const { toDos, isError, isEditing } = this.state;
     return (
-      <section className="section column is-half is-offset-one-quarter">
+      <AppContainer>
         <AddToDoForm onSubmit={this.onToDoSubmit} onToDoChange={this.onToDoChange} isError={isError} />
-        <ToDoList toDos={toDos} onDismiss={this.onDismiss} />
-      </section>
+        {toDos.length === 0
+          ? <h3 className="subtitle is-3 has-text-centered">You have nothing to do. Enjoy! 😜</h3>
+          : <ToDoList
+            isEditing={isEditing}
+            toggleEditing={this.toggleEditing}
+            toDos={toDos}
+            onDismiss={this.onDismiss}
+          />}
+      </AppContainer>
     );
   }
 }
