@@ -45,11 +45,12 @@ AddToDoForm.defaultProps = {
   isError: false,
 };
 
-const ToDoList = ({ toDos, onDismiss, toggleEditing, isEditing }) => (
+const ToDoList = ({ toDos, onDismiss, isEditing, toggleChecked }) => (
   <ul>
     {toDos.map(todo => (
-      <li onClick={toggleEditing(todo.key)} key={todo.key}>
+      <li key={todo.key}>
         <ListItem className="tag">
+          <input type="checkbox" onChange={() => toggleChecked(todo)} checked={todo.isChecked} />
           {todo.toDoName}
           <button className="delete is-small" onClick={() => onDismiss(todo.key)} />
         </ListItem>
@@ -82,6 +83,7 @@ class App extends Component {
     this.onToDoChange = this.onToDoChange.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
     this.toggleEditing = this.toggleEditing.bind(this);
+    this.toggleChecked = this.toggleChecked.bind(this);
   }
   onDismiss(key) {
     const isNotId = item => item.key !== key;
@@ -104,12 +106,15 @@ class App extends Component {
       this.setState({ isError: true });
     } else if (!toDos.length) {
       this.setState(prevState => ({
-        toDos: [...prevState.toDos, { key: 0, toDoName }],
+        toDos: [...prevState.toDos, { key: 0, toDoName, isChecked: false }],
         toDoName: '',
       }));
     } else {
       this.setState(prevState => ({
-        toDos: [...prevState.toDos, { key: prevState.toDos[prevState.toDos.length - 1].key + 1, toDoName }],
+        toDos: [
+          ...prevState.toDos,
+          { key: prevState.toDos[prevState.toDos.length - 1].key + 1, toDoName, isChecked: false },
+        ],
         toDoName: '',
       }));
     }
@@ -119,7 +124,15 @@ class App extends Component {
 
   toggleEditing(key) {
     // this.setState({ isEditing: !this.state.isEditing });
-    console.log(key);
+  }
+
+  toggleChecked(item) {
+    const updatedToDos = this.state.toDos.filter(todo => todo.key !== item.key);
+    const checkedTodo = this.state.toDos.find(todo => todo.key === item.key);
+    checkedTodo.isChecked = !checkedTodo.isChecked;
+    this.setState({
+      toDos: [...updatedToDos, checkedTodo],
+    });
   }
 
   render() {
@@ -131,6 +144,7 @@ class App extends Component {
           ? <h3 className="subtitle is-3 has-text-centered">You have nothing to do. Enjoy! 😜</h3>
           : <ToDoList
             isEditing={isEditing}
+            toggleChecked={this.toggleChecked}
             toggleEditing={this.toggleEditing}
             toDos={toDos}
             onDismiss={this.onDismiss}
