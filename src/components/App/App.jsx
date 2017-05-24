@@ -15,6 +15,9 @@ const ListItem = styled.span`
   font-size: 1.05rem;
   width: 100%;
   margin: 5px 0;
+  text-decoration: ${props => props.completed && 'line-through'};
+  opacity: ${props => props.completed && '0.5'};
+  font-style: ${props => props.completed && 'italic'};
   border: 1px solid darkgray;
   justify-content: space-between;
 `;
@@ -49,8 +52,8 @@ const ToDoList = ({ toDos, onDismiss, isEditing, toggleChecked }) => (
   <ul>
     {toDos.map(todo => (
       <li key={todo.key}>
-        <ListItem className="tag">
-          <input type="checkbox" onChange={() => toggleChecked(todo)} checked={todo.isChecked} />
+        <ListItem className="tag" completed={todo.isChecked}>
+          <input type="checkbox" onChange={() => toggleChecked(todo.key)} checked={todo.isChecked} />
           {todo.toDoName}
           <button className="delete is-small" onClick={() => onDismiss(todo.key)} />
         </ListItem>
@@ -126,12 +129,18 @@ class App extends Component {
     // this.setState({ isEditing: !this.state.isEditing });
   }
 
-  toggleChecked(item) {
-    const updatedToDos = this.state.toDos.filter(todo => todo.key !== item.key);
-    const checkedTodo = this.state.toDos.find(todo => todo.key === item.key);
-    checkedTodo.isChecked = !checkedTodo.isChecked;
+  toggleChecked(itemKey) {
+    const updatedToDos = this.state.toDos.map((todo) => {
+      if (todo.key === itemKey) {
+        const todoCopy = Object.assign({}, todo);
+        todoCopy.isChecked = !todoCopy.isChecked;
+        return todoCopy;
+      }
+      return todo;
+    });
+    console.log(updatedToDos);
     this.setState({
-      toDos: [...updatedToDos, checkedTodo],
+      toDos: updatedToDos,
     });
   }
 
