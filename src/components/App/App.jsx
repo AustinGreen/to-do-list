@@ -130,14 +130,16 @@ class App extends Component {
   }
 
   toggleChecked(itemKey) {
-    const updatedToDos = this.state.toDos.map((todo) => {
-      if (todo.key === itemKey) {
-        const todoCopy = Object.assign({}, todo);
-        todoCopy.isChecked = !todoCopy.isChecked;
-        return todoCopy;
-      }
-      return todo;
-    });
+    const updatedToDos = this.state.toDos
+      .map((todo) => {
+        if (todo.key === itemKey) {
+          const todoCopy = Object.assign({}, todo);
+          todoCopy.isChecked = !todoCopy.isChecked;
+          return todoCopy;
+        }
+        return todo;
+      })
+      .sort((a, b) => a.isChecked);
     console.log(updatedToDos);
     this.setState({
       toDos: updatedToDos,
